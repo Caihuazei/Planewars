@@ -14,9 +14,9 @@ public class epPlane extends BaseSprite implements Drawable, Moveable {
     private Image image;
     private  int index = FramConstant.PLANE_INDEX * 2;
     private int fire = 0;
+    private boolean right;
 
     public epPlane() {
-        this(100,100,ImageMap.get("ep01"));
     }
 
     public epPlane(int x, int y, Image image) {
@@ -28,26 +28,55 @@ public class epPlane extends BaseSprite implements Drawable, Moveable {
     public void fire() {
         if (fire >= 80) {
             GameFram gameFram = DataStore.get("gameFram");
-            gameFram.epBullets.add(new epBullet(getX() + 45,
-                    getY() + ImageMap.get("epb01").getHeight(null) ,
-                    ImageMap.get("epb01")));
+            if (image == ImageMap.get("ep01")){
+                gameFram.epBullets.add(new epBullet(getX() + 45,
+                        getY() + ImageMap.get("epb01").getHeight(null) ,
+                        ImageMap.get("epb01")));
+        }else if (image == ImageMap.get("ep02")){
+                gameFram.epBullets.add(new epBullet(
+                        getX() + image.getWidth(null) / 2 - 43,
+                        getY() + image.getHeight(null) /2,
+                        ImageMap.get("epb02")));
+            }
             fire = 0;
-
         }
+
     }
 
     @Override
     public void draw(Graphics g) {
-        fire++;
-        g.drawImage(image, getX(), getY(), image.getWidth(null), image.getHeight(null), null);
-        fire();
         move();
+        if (image == ImageMap.get("ep01")){
+            g.drawImage(image, getX(), getY(), image.getWidth(null), image.getHeight(null), null);
+        }
+        if (image == ImageMap.get("ep02")){
+            g.drawImage(image, getX(), getY(),
+                    image.getWidth(null) ,
+                    image.getHeight(null) , null);
+        }
+        fire++;
+        fire();
         borderTesting();
     }
 
     @Override
     public void move() {
-        setY(getY() + index);
+        if (getX() < 0){
+            right = true;
+        }else if (getX() > FramConstant.FRAME_WIDTH - image.getWidth(null)){
+            right = false;
+        }
+
+        if (image == ImageMap.get("ep01")){
+            setY(getY() + index);
+        }else if (image == ImageMap.get("ep02") && right){
+            setX(getX() + FramConstant.PLANE_INDEX);
+            setY(getY() + FramConstant.PLANE_INDEX);
+        }else if (image == ImageMap.get("ep02") && right == false){
+            setX(getX() - FramConstant.PLANE_INDEX);
+            setY(getY() + FramConstant.PLANE_INDEX);
+        }
+
     }
     public void borderTesting(){
         if (getY() - image.getHeight(null)  >= FramConstant.FRAME_HEIGHT){

@@ -26,6 +26,10 @@ public class Background extends BaseSprite implements Drawable, Moveable {
     @Override
     public void move() {
         setY(getY() + FramConstant.PLANE_INDEX);
+        if (getY() == 0){
+            setY(FramConstant.FRAME_HEIGHT-ImageMap.get("bg1").getHeight(null));
+        }
+
     }
 
     @Override

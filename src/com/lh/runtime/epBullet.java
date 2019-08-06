@@ -16,7 +16,6 @@ public class epBullet extends BaseSprite implements Drawable, Moveable {
 
 
     public epBullet() {
-        this(0,0, ImageMap.get("epb01"));
 
     }
 
@@ -27,8 +26,15 @@ public class epBullet extends BaseSprite implements Drawable, Moveable {
 
     @Override
     public void draw(Graphics g) {
-        g.drawImage(image, getX(), getY(), image.getWidth(null), image.getHeight(null), null);
         move();
+        if (image == ImageMap.get("epb01")){
+            g.drawImage(image, getX(), getY(), image.getWidth(null), image.getHeight(null), null);
+        }if (image == ImageMap.get("epb02")){
+            g.drawImage(image, getX(), getY(),
+                    image.getWidth(null) ,
+                    image.getHeight(null) ,
+                    null);
+        }
         borderTesting();
     }
 
@@ -43,17 +49,22 @@ public class epBullet extends BaseSprite implements Drawable, Moveable {
             gameFram.epBullets.remove(this);
         }
     }
-
+    //创建矩形对象
     @Override
     public Rectangle rectangle() {
         return new Rectangle(getX() , getY(),image.getWidth(null),image.getHeight(null));
     }
+
+    //我方飞机与敌方子弹  碰撞检测
     public void collisionTesting(Plane plane){
         GameFram gameFram = DataStore.get("gameFram");
 
         if (plane.rectangle().intersects(this.rectangle())){
             gameFram.epBullets.remove(this);
-            gameFram.gameOver = true;
+            FramConstant.NUMBER_COLLISIONS--;
+            if (FramConstant.NUMBER_COLLISIONS == 0) {
+                gameFram.gameOver = true;
+            }
         }
     }
 }

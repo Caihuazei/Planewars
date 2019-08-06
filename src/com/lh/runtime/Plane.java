@@ -19,6 +19,7 @@ public class Plane extends BaseSprite implements Drawable, Moveable {
     private int index = FramConstant.PLANE_INDEX * 3;
     private boolean fire;
     private int o = 0;
+    private int hp = 0;
 
     public Plane() {
         this((FramConstant.FRAME_WIDTH - ImageMap.get("plan2").getWidth(null)) / 2,
@@ -34,9 +35,11 @@ public class Plane extends BaseSprite implements Drawable, Moveable {
     @Override
     public void draw(Graphics g) {
         o++;
+        hp++;
+        move();
+        DropHp();
         g.drawImage(image, getX(), getY(), image.getWidth(null), image.getHeight(null), null);
         epPlane();
-        move();
         borderTesting();
 
 
@@ -63,11 +66,25 @@ public class Plane extends BaseSprite implements Drawable, Moveable {
      * 加载子弹
      */
     public void fire() {
-        if (fire) {
+        if (fire && FramConstant.KILL_EPPLAN <= 10) {
             GameFram gameFram = DataStore.get("gameFram");
-            gameFram.bullets.add(new Bullet((getX()+ImageMap.get("plan2").getWidth(null)/2 - 49) ,
-                    getY() ,
+            gameFram.bullets.add(new Bullet((getX() + ImageMap.get("plan2").getWidth(null) / 2 - 49),
+                    getY(),
                     ImageMap.get("myb01")));
+
+        }
+        if (fire && FramConstant.KILL_EPPLAN >= 10 && FramConstant.KILL_EPPLAN <20) {
+            GameFram gameFram = DataStore.get("gameFram");
+            gameFram.bullets.add(new Bullet((getX() + ImageMap.get("plan2").getWidth(null) / 2 - 49),
+                    getY(),
+                    ImageMap.get("myb02")));
+
+        }
+        if (fire && FramConstant.KILL_EPPLAN >= 20) {
+            GameFram gameFram = DataStore.get("gameFram");
+            gameFram.bullets.add(new Bullet((getX() + ImageMap.get("plan2").getWidth(null) / 2 - 49),
+                    getY(),
+                    ImageMap.get("myb03")));
 
         }
     }
@@ -78,11 +95,45 @@ public class Plane extends BaseSprite implements Drawable, Moveable {
 
     public void epPlane() {
         Random random = new Random();
-        if (o>=150) {
-            int r = random.nextInt(800);
+        if (o >= 150) {
+            int r = random.nextInt(600);
+            int r2 = random.nextInt(600);
             GameFram gameFram = DataStore.get("gameFram");
+            if (FramConstant.KILL_EPPLAN > 1) {
+                if (r > 300)
+                gameFram.epPlanes.add(new epPlane(r2 , 0, ImageMap.get("ep02")));
+            }
             gameFram.epPlanes.add(new epPlane(r, 0, ImageMap.get("ep01")));
             o = 0;
+        }
+    }
+
+
+
+    /**
+     * 加载掉落生命、保护罩
+     */
+
+    public void DropHp() {
+        GameFram gameFram = DataStore.get("gameFram");
+        Random random = new Random();
+        //加载护盾
+        if (random.nextInt(1000) >=850){
+            if (FramConstant.SHIELD){
+                gameFram.items.add(new DropHp(gameFram.plane.getX() + image.getWidth(null) / 2 - 30,
+                        gameFram.plane.getY() + image.getHeight(null) / 2 ,
+                        ImageMap.get("shield3")));
+            }
+        }
+        if (hp >= 300) {
+            int r = random.nextInt(800);
+            if (r % 2 == 0){
+                gameFram.dropHps.add(new DropHp(r, 0, ImageMap.get("Thp")));
+            }else {
+                gameFram.dropHps.add(new DropHp(r, 0, ImageMap.get("shield")));
+                //想items集合加载保护罩
+            }
+            hp = 0;
         }
     }
 
@@ -150,13 +201,16 @@ public class Plane extends BaseSprite implements Drawable, Moveable {
         if (e.getKeyCode() == KeyEvent.VK_J) {
             fire();
             fire = false;
-
+        }
+        if (e.getKeyCode() == KeyEvent.VK_R) {
+            FramConstant.R = true;
         }
 
     }
 
+    //创建矩形对象
     @Override
     public Rectangle rectangle() {
-        return new Rectangle(getX() , getY(),image.getWidth(null),image.getHeight(null));
+        return new Rectangle(getX(), getY(), image.getWidth(null), image.getHeight(null));
     }
 }
